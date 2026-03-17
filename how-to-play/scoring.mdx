@@ -1,0 +1,115 @@
+---
+title: 'Scoring'
+description: 'How Current Score and Global Score work in Lucky Roll Dice, with worked examples and strategy tips for deciding when to hold.'
+---
+
+Lucky Roll Dice has two distinct score types. Understanding how they interact is key to making good decisions at the table.
+
+## Current Score
+
+Current Score tracks the points you have accumulated **during your active turn**. It starts at 0 when your turn begins and increases with every successful roll.
+
+Current Score is temporary. It disappears in two situations:
+
+- You roll a **1** — Current Score resets to 0 and the turn passes.
+- You **hold** — Current Score is added to your Global Score, then resets to 0.
+
+## Global Score
+
+Global Score is your permanent bank. It only increases when you successfully hold, and it never decreases. The first player to reach 100 in their Global Score wins.
+
+Global Score is displayed prominently on each player's side of the screen alongside the Current Score.
+
+## How scores are calculated
+
+The game calculates scores exactly as follows:
+
+**On each roll (2–6):**
+```
+New Current Score = Current Score + dice result
+```
+
+**On hold:**
+```
+New Global Score = Global Score + Current Score
+Current Score = 0
+```
+
+**On rolling a 1:**
+```
+Current Score = 0
+(Global Score is unaffected)
+```
+
+## Example scenarios
+
+### Successful turn
+
+| Action | Dice result | Current Score | Global Score |
+|---|---|---|---|
+| Start of turn | — | 0 | 0 |
+| Roll | 4 | 4 | 0 |
+| Roll | 3 | 7 | 0 |
+| Roll | 5 | 12 | 0 |
+| Hold | — | 0 | 12 |
+
+The player banks 12 points and passes the turn.
+
+### Rolling a 1
+
+| Action | Dice result | Current Score | Global Score |
+|---|---|---|---|
+| Start of turn | — | 0 | 12 |
+| Roll | 6 | 6 | 12 |
+| Roll | 4 | 10 | 12 |
+| Roll | 5 | 15 | 12 |
+| Roll | 1 | 0 | 12 |
+
+The 15-point Current Score is wiped out. Global Score is unchanged at 12. The turn passes immediately.
+
+### Winning turn
+
+| Action | Dice result | Current Score | Global Score |
+|---|---|---|---|
+| Start of turn | — | 0 | 87 |
+| Roll | 6 | 6 | 87 |
+| Roll | 5 | 11 | 87 |
+| Roll | 4 | 15 | 87 |
+| Hold | — | 0 | 102 |
+
+Global Score reaches 102, which meets the `>= 100` threshold. The game ends and the player wins.
+
+## Strategy tips
+
+<Tip>
+  **Hold early when your global score is close to 100.** If your Global Score is at 87 and you have 13 in your Current Score, holding locks in the win. There is no reason to risk a 1.
+</Tip>
+
+<Tip>
+  **Consider your opponent's Global Score.** If your opponent is sitting at 95 points and it is their next turn, they only need 5 more to win. It may be worth taking extra risk on your turn to build a large lead before passing.
+</Tip>
+
+<Tip>
+  **Each roll after the first carries increasing risk.** The probability of rolling a 1 is always 1 in 6 (about 17%). That probability does not change, but the cost of a 1 grows with each additional roll. A Current Score of 20 is much more painful to lose than a Current Score of 3.
+</Tip>
+
+<Tip>
+  **Use small holds to stay safe.** Holding with just 6 or 8 points per turn is slow, but it is safe. Over many turns, steady accumulation can beat a risky opponent who keeps losing their Current Score to unlucky 1s.
+</Tip>
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Does rolling a 1 affect my Global Score?">
+    No. Rolling a 1 only resets your Current Score to 0. Your Global Score is never reduced under any circumstance.
+  </Accordion>
+  <Accordion title="Can I win by rolling, without holding?">
+    No. The win condition is checked only after a hold. Even if your Current Score would push you past 100, you must click Hold for the win to be registered.
+  </Accordion>
+  <Accordion title="What happens if both players reach 100 on the same turn?">
+    This is not possible. Only the active player can hold, and the game ends immediately when their Global Score reaches 100. The other player does not get a turn.
+  </Accordion>
+  <Accordion title="Is there a maximum score?">
+    No. The win condition triggers at exactly 100 or above. In theory a player could bank more than 100 in a single hold, but the game ends as soon as the threshold is met.
+  </Accordion>
+</AccordionGroup>

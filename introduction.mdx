@@ -1,0 +1,51 @@
+---
+title: "Introduction"
+description: "Welcome to Lucky Roll Dice — a two-player browser-based dice game of fate, patience, and strategy."
+---
+
+## What is Lucky Roll Dice?
+
+Lucky Roll Dice is a fast-paced, two-player web game where skill meets fortune. Two players share a screen, taking turns rolling a single die, building up their score, and deciding when to bank their points before fate hands them a 1.
+
+The first player to reach **100 points** wins.
+
+<CardGroup cols={2}>
+  <Card title="How to Play" icon="dice" href="/how-to-play/overview">
+    Learn the rules, scoring system, and turn mechanics
+  </Card>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Get the game running on your machine in minutes
+  </Card>
+  <Card title="Game Rules" icon="scroll" href="/how-to-play/rules">
+    Understand what happens when you roll a 1
+  </Card>
+  <Card title="Local Development" icon="code" href="/running/local-development">
+    Explore the source code and customize the game
+  </Card>
+</CardGroup>
+
+## Core mechanics
+
+Lucky Roll Dice is built around three simple actions:
+
+- **New Game** — Resets all scores and starts fresh with Player 1's turn
+- **Roll Dice** — Generates a random number from 1–6 and adds it to your current score (rolling a 1 forfeits your current score and passes the turn)
+- **Hold** — Banks your current score into your global total and passes the turn to your opponent
+
+## Built with
+
+Lucky Roll Dice is a pure front-end game served via a lightweight Express.js static file server. No database, no accounts, no backend logic — just HTML, CSS, and JavaScript.
+
+| Technology | Purpose |
+|---|---|
+| HTML5 | Game structure and layout |
+| CSS3 | Responsive styling, dice visuals, animations |
+| JavaScript (ES6+) | Game logic and DOM manipulation |
+| Express.js | Static file server |
+| Bootstrap | Layout utilities |
+| Font Awesome | Icons and dice dot rendering |
+| Lato (Google Fonts) | Typography |
+
+## Design philosophy
+
+The game is intentionally minimal: one screen, two players, one die. The tension comes from the **push-your-luck** mechanic — every roll is a gamble between greed and safety. Roll too many times and you risk losing everything. Hold too early and your opponent pulls ahead.

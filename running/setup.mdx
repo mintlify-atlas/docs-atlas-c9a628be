@@ -1,0 +1,134 @@
+---
+title: 'Setup'
+description: 'Everything you need to install and run Lucky Roll Dice locally.'
+---
+
+Lucky Roll Dice is a browser-based game served by a minimal Express static file server. You need Node.js and npm — no database, no build step.
+
+## System requirements
+
+<Columns cols={2}>
+  <Card title="Node.js 14+" icon="node-js">
+    Express 4.x requires Node.js 14 or later. Run `node -v` to check your version.
+  </Card>
+  <Card title="npm" icon="box">
+    Included with Node.js. Used to install dependencies and run the start script.
+  </Card>
+</Columns>
+
+<Tip>
+  You can download Node.js (which includes npm) from [nodejs.org](https://nodejs.org). LTS releases are recommended.
+</Tip>
+
+## Getting started
+
+<Steps>
+  <Step title="Clone the repository">
+    Clone the project from GitHub to your local machine:
+
+    ```bash terminal
+    git clone https://github.com/dumitrusf/roll-Dice
+    cd roll-Dice
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    Install the two runtime dependencies — `express` (the static file server) and `reset-css` (a CSS baseline):
+
+    <CodeGroup>
+
+    ```bash npm
+    npm install
+    ```
+
+    ```bash yarn
+    yarn install
+    ```
+
+    </CodeGroup>
+
+    After installation your `node_modules` folder will contain `express ^4.19.2` and `reset-css ^5.0.2`.
+  </Step>
+
+  <Step title="Start the server">
+    Run the start script, which executes `node server.js`:
+
+    <CodeGroup>
+
+    ```bash npm
+    npm start
+    ```
+
+    ```bash yarn
+    yarn start
+    ```
+
+    </CodeGroup>
+
+    You should see the following message in your terminal:
+
+    ```
+    Aplicación escuchando en el puerto 3000
+    ```
+  </Step>
+
+  <Step title="Open the game">
+    Open your browser and navigate to:
+
+    ```
+    http://localhost:3000
+    ```
+
+    The game board loads immediately — no login or additional configuration required.
+  </Step>
+</Steps>
+
+## Port configuration
+
+The server reads the port from the `PORT` environment variable and falls back to `3000` if it is not set:
+
+```javascript server.js
+const port = process.env.PORT || 3000;
+```
+
+To run on a different port, set `PORT` before the start command:
+
+<CodeGroup>
+
+```bash npm (custom port)
+PORT=8080 npm start
+```
+
+```bash yarn (custom port)
+PORT=8080 yarn start
+```
+
+</CodeGroup>
+
+Then access the game at `http://localhost:8080`.
+
+<Note>
+  On Windows (Command Prompt), set the variable separately before running the command: `set PORT=8080 && npm start`. In PowerShell, use `$env:PORT="8080"; npm start`.
+</Note>
+
+## How static files are served
+
+`server.js` uses `express.static` to serve files:
+
+```javascript server.js
+app.use(express.static('public'));
+```
+
+<Warning>
+  The Express server is configured to serve files from a folder named `public`. Make sure the game files (`index.html`, `js/`, `css/`, `assets/`) are placed inside a `public/` subdirectory at the project root, or update the `express.static` path in `server.js` to match your actual file layout.
+</Warning>
+
+## Supported browsers
+
+The game uses standard ES6+ features and loads fonts via the `/assets/fonts/` directory (Lato, 10 weights). It renders correctly in any modern browser that supports:
+
+- ES6 JavaScript (arrow functions, `const`/`let`, template literals)
+- CSS custom properties and `conic-gradient`
+- Font Awesome CDN (loaded from the game's HTML)
+
+Any current version of Chrome, Firefox, Safari, or Edge works without additional configuration.

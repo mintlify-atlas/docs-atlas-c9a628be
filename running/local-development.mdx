@@ -1,0 +1,290 @@
+---
+title: 'Local development'
+description: 'Understand the codebase structure and make changes to Lucky Roll Dice.'
+---
+
+This guide walks through the project layout, the game logic architecture, and common customizations for developers who want to modify Lucky Roll Dice.
+
+## Project structure
+
+<Tree>
+  <Tree.Folder name="roll-Dice" defaultOpen>
+    <Tree.File name="server.js" />
+    <Tree.File name="index.html" />
+    <Tree.File name="package.json" />
+    <Tree.Folder name="js" defaultOpen>
+      <Tree.File name="script.js" />
+      <Tree.File name="bootstrap.bundle.js" />
+    </Tree.Folder>
+    <Tree.Folder name="css" defaultOpen>
+      <Tree.File name="styles.css" />
+      <Tree.File name="bootstrap.css" />
+      <Tree.File name="normalize.css" />
+      <Tree.File name="reset.css" />
+    </Tree.Folder>
+    <Tree.Folder name="assets">
+      <Tree.File name="(fonts, favicon)" />
+    </Tree.Folder>
+  </Tree.Folder>
+</Tree>
+
+| File / folder | Purpose |
+|---|---|
+| `server.js` | Express static file server — the only backend code. Listens on `PORT` or `3000`. |
+| `index.html` | All game markup: two player panels, dice container, and the three action buttons (New Game, Roll Dice, Hold). |
+| `js/script.js` | All game logic — event listeners, dice rendering, score tracking, and turn management. |
+| `css/styles.css` | Custom styles: conic-gradient background, responsive layout, player panel theming. |
+| `css/bootstrap.css` | Bootstrap grid and utility classes. |
+| `css/normalize.css` | Browser consistency baseline. |
+| `css/reset.css` | Full CSS reset (sourced from the `reset-css` npm package). |
+| `js/bootstrap.bundle.js` | Bootstrap JavaScript (dropdowns, modals, etc.). |
+| `assets/` | Lato font files (10 weights/styles) and favicon. |
+
+## Game logic architecture
+
+All interactive behaviour lives in `js/script.js`. The file is organized into four clear sections:
+
+### 1. DOM element selection
+
+Variables are selected once at the top of the file using `document.querySelector` / `document.getElementById`:
+
+```javascript js/script.js
+const startGame  = document.querySelector('#startGame');
+const rollDice   = document.querySelector('#rollDice');
+const holdScore  = document.querySelector('#holdScore');
+const cs1        = document.querySelector('#CS1');   // Player 1 current score
+const cs2        = document.querySelector('#CS2');   // Player 2 current score
+const gs1        = document.querySelector('#GS1');   // Player 1 global score
+const gs2        = document.querySelector('#GS2');   // Player 2 global score
+const dice       = document.querySelector('#dice');  // Dice face container
+```
+
+The two player title elements are declared with `let` because the turn-indicator dot is re-appended between them on every turn change (see [Turn indicator](#turn-indicator) below).
+
+### 2. Event listener setup
+
+All three button listeners are registered inside a single `loadEventListeners()` function that is called once on page load:
+
+```javascript js/script.js
+function loadEventListeners() {
+  startGame.addEventListener('click', beginGame);
+  rollDice.addEventListener('click', generateRandomFace);
+  holdScore.addEventListener('click', handleHoldScore);
+}
+
+loadEventListeners();
+```
+
+### 3. Utility functions
+
+| Function | Responsibility |
+|---|---|
+| `generateRandomInt(min, max)` | Returns a random integer in `[min, max)` using `Math.floor(Math.random() * (max - min)) + min`. |
+| `showDiceFaceGenerated(value)` | Colors the correct dots red and hides the rest for a given face value (1–6). |
+| `keepRoundScore(currentScore)` | Adds the roll to the round total, or resets to 0 and switches turns when a 1 is rolled. |
+| `keepGlobalScore(cs, gs, player)` | Banks the round score into the player's global total and checks for a win (`>= 100`). |
+| `checkDotPlayerPosition()` | Inspects which player element currently contains the turn-indicator dot to return the active player. |
+
+### 4. Main functions
+
+| Function | Responsibility |
+|---|---|
+| `beginGame()` | Resets all scores to zero and sets Player 1 as the active turn. |
+| `generateRandomFace()` | Rolls the dice (`generateRandomInt(1, 7)`), updates the display, and calls `keepRoundScore`. |
+| `handleHoldScore()` | Calls `keepGlobalScore` to bank the current round score and pass the turn. |
+
+## Turn indicator
+
+Rather than tracking whose turn it is with a boolean or a variable, the game uses a **DOM element as state**.
+
+A single `<i>` element (referred to as `dotPlayer` in the code) is created once:
+
+```javascript js/script.js
+const dotPlayer = document.createElement('i');
+dotPlayer.classList.add('dot-player');
+```
+
+When the turn changes, the dot is appended to the new player's title element:
+
+```javascript js/script.js
+// Switch to player 2
+player2.append(dotPlayer);
+
+// Switch back to player 1
+player1.append(dotPlayer);
+```
+
+Because `.append()` moves a node rather than copying it, the dot is always in exactly one place. `checkDotPlayerPosition()` simply checks which element contains it:
+
+```javascript js/script.js
+function checkDotPlayerPosition() {
+  if (player1.contains(dotPlayer)) return 'player1';
+  return 'player2';
+}
+```
+
+<Note>
+  `player1` and `player2` are declared with `let` even though the DOM references themselves never change. This is because `dotPlayer.append()` mutates the subtree of those elements, and some linters flag `const` when the referenced node's children are modified. The `let` declaration is intentional.
+</Note>
+
+## Dice rendering
+
+The dice face is rendered using a **3×3 grid of nine dot elements** (indices 0–8):
+
+```
+[ 0 ] [ 1 ] [ 2 ]
+[ 3 ] [ 4 ] [ 5 ]
+[ 6 ] [ 7 ] [ 8 ]
+```
+
+`showDiceFaceGenerated(value)` uses a `switch` statement to decide which dot indices should be colored red (`#eb4d4c`). All other dots are set to white (`#fff`), making them invisible against the white dice background:
+
+```javascript js/script.js
+function showDiceFaceGenerated(value) {
+  const dots = dice.querySelectorAll('.dot');
+  // Reset all dots
+  dots.forEach(dot => dot.style.color = '#fff');
+
+  switch (value) {
+    case 1:
+      dots[4].style.color = '#eb4d4c'; // center
+      break;
+    case 2:
+      dots[2].style.color = '#eb4d4c'; // top-right
+      dots[6].style.color = '#eb4d4c'; // bottom-left
+      break;
+    case 3:
+      dots[2].style.color = '#eb4d4c';
+      dots[4].style.color = '#eb4d4c';
+      dots[6].style.color = '#eb4d4c';
+      break;
+    // ... cases 4, 5, 6
+  }
+}
+```
+
+<Note>
+  This approach keeps the dice markup static — only CSS color values change, which means no DOM nodes are added or removed on each roll. It is efficient and avoids layout reflow.
+</Note>
+
+## CSS and styling
+
+Custom styles are in `css/styles.css`. The file uses **CSS nesting** — a modern native CSS feature that lets you write nested selectors without a preprocessor:
+
+```css css/styles.css
+.player-panel {
+  background: linear-gradient(to bottom, #fff, #f5f5f5);
+
+  & .player-title {
+    color: #EB4D4C;
+  }
+
+  & .score-display {
+    font-family: 'Lato', sans-serif;
+  }
+}
+```
+
+<Note>
+  CSS nesting is supported in all modern browsers (Chrome 112+, Firefox 117+, Safari 16.5+) but is not available in older environments. No preprocessor or build step is needed.
+</Note>
+
+Key styling decisions:
+
+- **Background**: `conic-gradient` using warm brown tones (`#A27648`, `#89553B`, `#966C3B`, `#A08458`).
+- **Main panel**: White/off-white `linear-gradient`.
+- **Accent color**: `#EB4D4C` (red) — used for active dots, player headings, and button highlights.
+- **Responsive layout**: Full-width stacked panels on mobile; `absolute`-positioned side-by-side panels on desktop (`min-width: 1280px`).
+- **Font**: Lato, loaded from `/assets/fonts/` in 10 weights and styles.
+
+## Customization
+
+<AccordionGroup>
+  <Accordion title="Change the winning score threshold" icon="trophy">
+    The win condition is hardcoded in `keepGlobalScore`. Find this check and update the number:
+
+    ```javascript js/script.js
+    function keepGlobalScore(cs, gs, player) {
+      const newGlobal = parseInt(gs.textContent) + parseInt(cs.textContent);
+      gs.textContent = newGlobal;
+      cs.textContent = 0;
+
+      if (newGlobal >= 100) {  // <-- change 100 to any target score
+        // winner logic
+      }
+    }
+    ```
+
+    For example, change `100` to `50` for a faster game or `200` for a longer one.
+  </Accordion>
+
+  <Accordion title="Change the server port" icon="plug">
+    The port is controlled by the `PORT` environment variable. Pass it before the start command:
+
+    ```bash terminal
+    PORT=8080 npm start
+    ```
+
+    To change the default (used when no `PORT` variable is set), edit `server.js`:
+
+    ```javascript server.js
+    const port = process.env.PORT || 3000; // change 3000 here
+    ```
+  </Accordion>
+
+  <Accordion title="Modify dice dot colors" icon="dice">
+    Dot colors are set inline by `showDiceFaceGenerated` in `js/script.js`. The active color is `#eb4d4c` and the hidden color is `#fff`.
+
+    To use a different active color, find all occurrences in the `switch` statement:
+
+    ```javascript js/script.js
+    dots[4].style.color = '#eb4d4c'; // replace with your color
+    ```
+
+    The dice container itself is styled in `css/styles.css` under the `.dice` or `#dice` selector — update `border`, `border-radius`, and `background` there.
+  </Accordion>
+
+  <Accordion title="Add sound effects" icon="volume-high">
+    The `generateRandomFace` function is the right place to trigger a roll sound, and `keepGlobalScore` is where you would play a win fanfare.
+
+    A minimal example using the Web Audio API or an `<audio>` element:
+
+    ```javascript js/script.js
+    const rollSound = new Audio('/assets/sounds/roll.mp3');
+
+    function generateRandomFace() {
+      rollSound.currentTime = 0;
+      rollSound.play();
+      // ... existing logic
+    }
+    ```
+
+    Place sound files in the `assets/` folder so Express serves them as static files.
+  </Accordion>
+
+  <Accordion title="Add CSS animations" icon="wand-magic-sparkles">
+    To animate the dice on each roll, add a CSS animation class and trigger it from `generateRandomFace`:
+
+    ```css css/styles.css
+    @keyframes dice-shake {
+      0%, 100% { transform: rotate(0deg); }
+      25%       { transform: rotate(-10deg); }
+      75%       { transform: rotate(10deg); }
+    }
+
+    .dice-rolling {
+      animation: dice-shake 0.3s ease;
+    }
+    ```
+
+    ```javascript js/script.js
+    function generateRandomFace() {
+      dice.classList.remove('dice-rolling');
+      // Force reflow so re-adding the class restarts the animation
+      void dice.offsetWidth;
+      dice.classList.add('dice-rolling');
+      // ... existing logic
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
