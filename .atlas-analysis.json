@@ -1,0 +1,50 @@
+{
+  "projectType": "saas",
+  "projectName": "Lucky Roll Dice",
+  "projectDescription": "A two-player browser-based dice game where players roll, accumulate points, and race to reach 100 before their opponent.",
+  "theme": "almond",
+  "primaryColor": "#EB4D4C",
+  "lightColor": "#F6F6F6",
+  "darkColor": "#89553B",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": ["introduction", "quickstart"]
+          },
+          {
+            "group": "How to Play",
+            "pages": ["how-to-play/overview", "how-to-play/rules", "how-to-play/scoring"]
+          },
+          {
+            "group": "Running the Game",
+            "pages": ["running/setup", "running/local-development"]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Two-player local multiplayer dice game",
+    "Visual dice rendering using CSS dots",
+    "Current and global score tracking per player",
+    "Turn-based gameplay: rolling a 1 forfeits the current score and switches turns",
+    "Hold mechanic: bank your current score to the global total and pass the turn",
+    "First player to reach 100 points wins",
+    "Responsive design for mobile and desktop",
+    "Express.js static file server for easy hosting"
+  ],
+  "publicApiSurface": [
+    "beginGame() — resets all scores and gives the turn to Player 1",
+    "generateRandomFace() — rolls the dice, generates a random number 1-6, updates current score",
+    "handleHoldScore() — banks the current player's score to global and passes the turn",
+    "showDiceFaceGenerated() — renders the correct dot pattern on the visual dice",
+    "keepRoundScore(cs) — adds the rolled number to the current score, or resets on 1",
+    "keepGlobalScore(cs, gs, player) — adds current score to global, checks for win condition",
+    "checkDotPlayerPosition() — determines which player currently holds the turn",
+    "generateRandomInt(min, max) — utility to generate a random integer in range"
+  ]
+}
